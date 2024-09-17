@@ -70,4 +70,50 @@ export const userRouter = router({
         }
       }
     }),
+    getUserByIdPost: publicProcedure.input(
+      z.object({
+        userId: z.string().optional(),
+      })
+    ).query(async ({ input }) => {
+        try {
+          const { userId } = input;
+
+          if (!userId) {
+            return null
+          }
+
+          const user = await prisma.user.findUnique({
+            where: {
+              id: userId,
+            },
+            include: {
+              posts: {
+                orderBy: {
+                  createdAt: "desc",
+                },
+              },
+            },
+          });
+
+          if(!user) {
+            return null
+          }
+          
+          return user
+        } catch (error) {
+          console.log(error);
+
+          if (error instanceof TRPCError && error.code === "BAD_REQUEST") {
+            throw new TRPCError({
+              code: "BAD_REQUEST",
+              message: error.message,
+            });
+          } else {
+            throw new TRPCError({
+              code: "INTERNAL_SERVER_ERROR",
+              message: "Internal Server Error",
+            });
+        }
+      }
+    }),
 });

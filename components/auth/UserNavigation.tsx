@@ -31,6 +31,14 @@ const UserNavigation = ({ user }: UserNavigationProps) => {
       </DropdownMenuTrigger>
 
       <DropdownMenuContent className="bg-white p-2 w-[300px]" align="end">
+        <Link href={`/author/${user.id}`}>
+          <DropdownMenuItem className="cursor-pointer">
+            <div className="break-words min-w-0">
+              <div className="mb-2">{user.name || ""}</div>
+              <div className="text-gray-500">{user.email || ""}</div>
+            </div>
+          </DropdownMenuItem>
+        </Link>
         <DropdownMenuItem className="cursor-pointer">
           <div className="brak-words min-w-0">
             <div className="mb-2">{user.name || ""}</div>
