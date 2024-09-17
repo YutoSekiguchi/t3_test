@@ -8,6 +8,7 @@ import { trpc } from "@/trpc/react";
 import Image from "next/image";
 import Link from "next/link";
 import toast from "react-hot-toast";
+import CommentDetail from "../comment/CommentDetail";
 
 interface PostDetailPageProps {
   post: Post & {
@@ -89,6 +90,8 @@ const PostDetail = ({ post, userId }: PostDetailPageProps) => {
           </button>
         </div>
       )}
+
+      <CommentDetail userId={userId} postId={post.id} />
     </div>
   );
 };

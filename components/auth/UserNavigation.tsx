@@ -39,11 +39,6 @@ const UserNavigation = ({ user }: UserNavigationProps) => {
             </div>
           </DropdownMenuItem>
         </Link>
-        <DropdownMenuItem className="cursor-pointer">
-          <div className="brak-words min-w-0">
-            <div className="mb-2">{user.name || ""}</div>
-          </div>
-        </DropdownMenuItem>
         <DropdownMenuSeparator />
 
         <Link href="/post/new">
