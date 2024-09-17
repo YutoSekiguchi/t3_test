@@ -183,4 +183,66 @@ export const postRouter = router({
         }
       }
     }),
+    deletePost: privateProcedure.input(
+      z.object({
+        postId: z.string(),
+      })
+    ).mutation(async ({ input, ctx }) => {
+      try {
+        const { postId } = input;
+        const userId = ctx.user.id;
+
+        const post = await prisma.post.findUnique({
+          where: {
+            id: postId,
+          },
+          include: {
+            user: {
+              select: {
+                id: true,
+              },
+            },
+          },
+        });
+
+        if (!post) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "投稿が見つかりません",
+          });
+        }
+
+        if (userId !== post.user.id) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "権限がありません",
+          });
+        }
+
+        if (post.image) {
+          const publicId = extractPublicId(post.image);
+          await deleteCloudImage(publicId);
+        }
+
+        await prisma.post.delete({
+          where: {
+            id: postId,
+          },
+        });
+
+      } catch (error) {
+        console.log(error);
+        if (error instanceof TRPCError && error.code === "BAD_REQUEST") {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: error.message,
+          });
+        } else {
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "投稿の削除に失敗しました",
+          });
+        }
+      }
+    }),
 });

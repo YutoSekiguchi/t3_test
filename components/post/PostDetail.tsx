@@ -17,6 +17,30 @@ interface PostDetailPageProps {
 }
 
 const PostDetail = ({ post, userId }: PostDetailPageProps) => {
+  const router = useRouter();
+
+  // 投稿の削除
+  const { mutate: deletePost, isLoading } = trpc.post.deletePost.useMutation({
+    onSuccess: () => {
+      toast.success("投稿を削除しました");
+      router.refresh();
+      router.push("/");
+    },
+    onError: (error: any) => {
+      toast.error(error.message);
+      console.error(error);
+    },
+  });
+  
+  const handleDeletePost = () => {
+    if (post.user.id !== userId) {
+        toast.error("投稿者以外は削除できません");
+        return;
+    }
+
+    deletePost({ postId: post.id });
+  }
+
   return (
     <div className="space-y-5">
       <div className="font-bold text-2xl break-words">{post.title}</div>
@@ -60,6 +84,9 @@ const PostDetail = ({ post, userId }: PostDetailPageProps) => {
               <Pencil className="w-5 h-5" />
             </div>
           </Link>
+          <button className="hover:bg-gray-100 p-2 rounded-full" disabled={isLoading} onClick={handleDeletePost}>
+            <Trash2 className="w-5 h-5 text-red-500" />
+          </button>
         </div>
       )}
     </div>
