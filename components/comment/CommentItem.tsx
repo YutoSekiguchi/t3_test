@@ -15,6 +15,26 @@ interface CommentItemProps {
 }
 
 const CommentItem = ({ comment, userId }: CommentItemProps) => {
+  const router = useRouter();
+
+  const { mutate: deleteComment, isLoading } =
+    trpc.comment.deleteComment.useMutation({
+      onSuccess: () => {
+        toast.success("コメントを削除しました");
+        router.refresh();
+      },
+      onError: (error: any) => {
+        toast.error("コメントの削除に失敗しました");
+        console.error(error);
+      },
+    });
+
+  const handleDeleteComment = () => {
+    if (confirm("コメントを削除しますか？")) {
+      deleteComment({ commentId: comment.id });
+    }
+  };
+
   return (
     <div>
       <div className="flex items-center justify-between p-2 sm:p-5 border-b">
@@ -37,9 +57,7 @@ const CommentItem = ({ comment, userId }: CommentItemProps) => {
       </div>
 
       <div className="p-2 sm:p-5 leading-relaxed break-words whitespace-pre-wrap">
-        <div>
-          {comment.content}
-        </div>
+        <div>{comment.content}</div>
       </div>
 
       <div className="flex items-center justify-end space-x-1 pr-1 pb-1">
@@ -50,7 +68,15 @@ const CommentItem = ({ comment, userId }: CommentItemProps) => {
                 <Pencil className="w-5 h-5" />
               </div>
             </Link>
-          </>  
+
+            <button
+              className="hover:bg-gray-100 p-2 rounded-full"
+              disabled={isLoading}
+              onClick={handleDeleteComment}
+            >
+              <Trash2 className="w-5 h-5 text-red-500" />
+            </button>
+          </>
         )}
       </div>
     </div>

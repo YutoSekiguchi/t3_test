@@ -148,4 +148,47 @@ export const commentRouter = router({
         });
       }
     }),
+
+    deleteComment: privateProcedure.input(
+      z.object({
+        commentId: z.string(),
+      })
+    ).mutation(async ({ input, ctx }) => {
+      try {
+        const { commentId } = input;
+        const userId = ctx.user.id;
+
+        const comment = await prisma.comment.findUnique({
+          where: {
+            id: commentId,
+          },
+        });
+
+        if (!comment) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "コメントが見つかりません",
+          });
+        }
+
+        if (userId !== comment.userId) {
+          throw new TRPCError({
+            code: "FORBIDDEN",
+            message: "コメントの削除権限がありません",
+          });
+        }
+
+        await prisma.comment.delete({
+          where: {
+            id: commentId,
+          },
+        });
+      } catch (error) {
+        console.log(error);
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "コメントの削除に失敗しました",
+        });
+      }
+    }),
 });
