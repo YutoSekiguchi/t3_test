@@ -33,4 +33,39 @@ export const commentRouter = router({
         });
       }
     }),
+    getComments: publicProcedure.input(
+      z.object({
+        postId: z.string(),
+      })
+    ).query(async ({ input }) => {
+      try {
+        const { postId } = input;
+
+        const comments = await prisma.comment.findMany({
+          where: {
+            postId,
+          },
+          include: {
+            user: {
+              select: {
+                id: true,
+                name: true,
+                image: true,
+              },
+            },
+          },
+          orderBy: {
+            updatedAt: "desc",
+          },
+        });
+
+        return { comments }
+      } catch (error) {
+        console.log(error);
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "コメント一覧取得に失敗しました",
+        });
+      }
+    }),
 });

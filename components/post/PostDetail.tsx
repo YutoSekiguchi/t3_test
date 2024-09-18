@@ -1,6 +1,6 @@
 "use client";
 
-import { Post, User } from "@prisma/client";
+import { Post, User, Comment } from "@prisma/client";
 import { format } from "date-fns";
 import { useRouter } from "next/navigation";
 import { Pencil, Trash2 } from "lucide-react";
@@ -15,9 +15,10 @@ interface PostDetailPageProps {
     user: Pick<User, "id" | "name" | "image">;
   };
   userId: string;
+  comments: (Comment & { user: Pick<User, "id" | "name" | "image"> })[];
 }
 
-const PostDetail = ({ post, userId }: PostDetailPageProps) => {
+const PostDetail = ({ post, userId, comments }: PostDetailPageProps) => {
   const router = useRouter();
 
   // 投稿の削除
@@ -32,15 +33,15 @@ const PostDetail = ({ post, userId }: PostDetailPageProps) => {
       console.error(error);
     },
   });
-  
+
   const handleDeletePost = () => {
     if (post.user.id !== userId) {
-        toast.error("投稿者以外は削除できません");
-        return;
+      toast.error("投稿者以外は削除できません");
+      return;
     }
 
     deletePost({ postId: post.id });
-  }
+  };
 
   return (
     <div className="space-y-5">
@@ -85,13 +86,17 @@ const PostDetail = ({ post, userId }: PostDetailPageProps) => {
               <Pencil className="w-5 h-5" />
             </div>
           </Link>
-          <button className="hover:bg-gray-100 p-2 rounded-full" disabled={isLoading} onClick={handleDeletePost}>
+          <button
+            className="hover:bg-gray-100 p-2 rounded-full"
+            disabled={isLoading}
+            onClick={handleDeletePost}
+          >
             <Trash2 className="w-5 h-5 text-red-500" />
           </button>
         </div>
       )}
 
-      <CommentDetail userId={userId} postId={post.id} />
+      <CommentDetail userId={userId} postId={post.id} comments={comments} />
     </div>
   );
 };
