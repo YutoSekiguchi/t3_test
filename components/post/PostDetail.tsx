@@ -1,6 +1,6 @@
 "use client";
 
-import { Post, User, Comment } from "@prisma/client";
+import { Post, User, Comment, CommentLike } from "@prisma/client";
 import { format } from "date-fns";
 import { useRouter } from "next/navigation";
 import { Pencil, Trash2 } from "lucide-react";
@@ -15,7 +15,10 @@ interface PostDetailPageProps {
     user: Pick<User, "id" | "name" | "image">;
   };
   userId: string;
-  comments: (Comment & { user: Pick<User, "id" | "name" | "image"> })[];
+  comments: (Comment & { user: Pick<User, "id" | "name" | "image"> } & {
+    hasLiked: boolean;
+    commentLikeId: string | null;
+  } & { likes: CommentLike[] })[];
 }
 
 const PostDetail = ({ post, userId, comments }: PostDetailPageProps) => {

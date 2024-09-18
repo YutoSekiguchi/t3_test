@@ -1,6 +1,6 @@
 "use client"
 
-import { Comment, User } from "@prisma/client"
+import { Comment, CommentLike, User } from "@prisma/client"
 import CommentNew from "./CommentNew";
 import CommentItem from "./CommentItem";
 
@@ -9,6 +9,8 @@ interface CommentDetailProps {
   postId: string;
   comments: (Comment & {
     user: Pick<User, "id" | "name" | "image">;
+  } & { hasLiked: boolean; commentLikeId: string | null; } & {
+    likes: CommentLike[];
   })[];
 }
 

@@ -35,11 +35,12 @@ export const commentRouter = router({
     }),
     getComments: publicProcedure.input(
       z.object({
+        userId: z.string().optional(),
         postId: z.string(),
       })
     ).query(async ({ input }) => {
       try {
-        const { postId } = input;
+        const { userId, postId } = input;
 
         const comments = await prisma.comment.findMany({
           where: {
@@ -53,13 +54,26 @@ export const commentRouter = router({
                 image: true,
               },
             },
+            likes: true,
           },
           orderBy: {
             updatedAt: "desc",
           },
         });
 
-        return { comments }
+        const commentsWithLikesStatus = comments.map((comment) => {
+          const userLike = userId
+          ? comment.likes.find((like) => like.userId === userId)
+          : null;
+
+          return {
+            ...comment,
+            hasLiked: !!userLike,
+            commentLikeId: userLike ? userLike.id : null,
+          }
+        })
+
+        return { comments: commentsWithLikesStatus };
       } catch (error) {
         console.log(error);
         throw new TRPCError({
@@ -188,6 +202,52 @@ export const commentRouter = router({
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
           message: "コメントの削除に失敗しました",
+        });
+      }
+    }),
+
+    createCommentLike: privateProcedure.input(
+      z.object({
+        commentId: z.string(),
+      })
+    ).mutation(async ({ input, ctx }) => {
+      try {
+        const { commentId } = input;
+        const userId = ctx.user.id;
+
+        await prisma.commentLike.create({
+          data: {
+            userId,
+            commentId,
+          },
+        });
+      } catch (error) {
+        console.log(error);
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "いいねに失敗しました",
+        });
+      }
+    }),
+
+    deleteCommentLike: privateProcedure.input(
+      z.object({
+        commentLikeId: z.string(),
+      })
+    ).mutation(async ({ input }) => {
+      try {
+        const { commentLikeId } = input;
+
+        await prisma.commentLike.delete({
+          where: {
+            id: commentLikeId,
+          },
+        });
+      } catch (error) {
+        console.log(error);
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "いいねの取り消しに失敗しました",
         });
       }
     }),

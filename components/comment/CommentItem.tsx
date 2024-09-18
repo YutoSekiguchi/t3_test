@@ -1,16 +1,20 @@
 "use client";
 
-import { Comment, User } from "@prisma/client";
+import { Comment, User, CommentLike } from "@prisma/client";
 import { format } from "date-fns";
 import { useRouter } from "next/navigation";
 import { Pencil, Trash2 } from "lucide-react";
 import { trpc } from "@/trpc/react";
+import CommentLikeDetail from "./CommentLikeDetail";
 import Link from "next/link";
 import toast from "react-hot-toast";
 import Image from "next/image";
 
 interface CommentItemProps {
-  comment: Comment & { user: Pick<User, "id" | "name" | "image"> };
+  comment: Comment & { user: Pick<User, "id" | "name" | "image"> } & {
+    hasLiked: boolean;
+    commentLikeId: string | null;
+  } & { likes: CommentLike[]};
   userId: string;
 }
 
@@ -61,6 +65,7 @@ const CommentItem = ({ comment, userId }: CommentItemProps) => {
       </div>
 
       <div className="flex items-center justify-end space-x-1 pr-1 pb-1">
+        <CommentLikeDetail comment={comment} userId={userId} />
         {userId === comment.userId && (
           <>
             <Link href={`/comment/${comment.id}/edit`}>

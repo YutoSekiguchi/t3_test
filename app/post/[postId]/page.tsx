@@ -23,6 +23,7 @@ const PostDetailPage = async ({ params }: PostDetailPageProps) => {
   }
 
   const { comments } = await trpc.comment.getComments({
+    userId: user?.id!,
     postId
   })
 
