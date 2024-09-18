@@ -68,4 +68,84 @@ export const commentRouter = router({
         });
       }
     }),
+    getCommentById: publicProcedure.input(
+      z.object({
+        commentId: z.string(),
+      })
+    ).query(async ({ input }) => {
+      try {
+        const { commentId } = input;
+
+        const comment = await prisma.comment.findUnique({
+          where: {
+            id: commentId,
+          },
+          include: {
+            user: {
+              select: {
+                id: true,
+                name: true,
+                image: true,
+              },
+            },
+          },
+        });
+
+        return comment;
+      } catch (error) {
+        console.log(error);
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "コメント取得に失敗しました",
+        });
+      }
+    }),
+    updateComment: privateProcedure.input(
+      z.object({
+        commentId: z.string(),
+        content: z.string(),
+      })
+    ).mutation(async ({ input, ctx }) => {
+      try {
+        const { commentId, content } = input;
+        const userId = ctx.user.id;
+
+        const comment = await prisma.comment.findUnique({
+          where: {
+            id: commentId,
+          },
+        });
+
+        if (!comment) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "コメントが見つかりません",
+          });
+        }
+
+        if (userId !== comment.userId) {
+          throw new TRPCError({
+            code: "FORBIDDEN",
+            message: "コメントの更新権限がありません",
+          });
+        }
+
+        await prisma.comment.update({
+          where: {
+            id: commentId,
+          },
+          data: {
+            content,
+          },
+        });
+
+        return comment;
+      } catch (error) {
+        console.log(error);
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "コメントの更新に失敗しました",
+        });
+      }
+    }),
 });

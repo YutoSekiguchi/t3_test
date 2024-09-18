@@ -41,6 +41,18 @@ const CommentItem = ({ comment, userId }: CommentItemProps) => {
           {comment.content}
         </div>
       </div>
+
+      <div className="flex items-center justify-end space-x-1 pr-1 pb-1">
+        {userId === comment.userId && (
+          <>
+            <Link href={`/comment/${comment.id}/edit`}>
+              <div className="hover:bg-gray-100 p-2 rounded-full">
+                <Pencil className="w-5 h-5" />
+              </div>
+            </Link>
+          </>  
+        )}
+      </div>
     </div>
   );
 };
