@@ -1,8 +1,24 @@
 import { trpc } from "@/trpc/client"
+import { postPerPage } from "@/lib/utils"
 import PostItem from "@/components/post/PostItem"
+import PaginationButton from "@/components/pagers/PaginationButton"
 
-const Home = async () => {
-  const posts = await trpc.post.getPosts()
+interface HomeProps {
+  searchParams: {
+    [key: string]: string | undefined
+  }
+}
+
+const Home = async ({searchParams}: HomeProps) => {
+  const { page, perPage } = searchParams
+
+  const limit = typeof perPage === 'string' ? parseInt(perPage) : postPerPage
+  const offset = typeof page === 'string' ? (parseInt(page) - 1) * limit : 0
+
+  const { posts, totalPosts } = await trpc.post.getPosts({
+    limit,
+    offset,
+  })
 
   // 投稿がない場合
   if (posts.length === 0) {
@@ -11,11 +27,19 @@ const Home = async () => {
     )
   }
 
+  const pageCount = Math.ceil(totalPosts / limit)
+
   return (
     <div className="space-y-5">
-      {posts.map((post) => (
-        <PostItem key={post.id} post={post} />
-      ))}
+      <div className="space-y-5">
+        {posts.map((post) => (
+          <PostItem key={post.id} post={post} />
+        ))}
+      </div>
+
+      {posts.length !== 0 && (
+        <PaginationButton pageCount={pageCount} displayPerPage={postPerPage} />
+      )}
     </div>
   )
 }
