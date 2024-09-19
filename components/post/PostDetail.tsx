@@ -19,9 +19,11 @@ interface PostDetailPageProps {
     hasLiked: boolean;
     commentLikeId: string | null;
   } & { likes: CommentLike[] })[];
+  pageCount: number;
+  totalComments: number;
 }
 
-const PostDetail = ({ post, userId, comments }: PostDetailPageProps) => {
+const PostDetail = ({ post, userId, comments, pageCount, totalComments }: PostDetailPageProps) => {
   const router = useRouter();
 
   // 投稿の削除
@@ -99,7 +101,7 @@ const PostDetail = ({ post, userId, comments }: PostDetailPageProps) => {
         </div>
       )}
 
-      <CommentDetail userId={userId} postId={post.id} comments={comments} />
+      <CommentDetail userId={userId} postId={post.id} comments={comments} pageCount={pageCount} totalComments={totalComments} />
     </div>
   );
 };

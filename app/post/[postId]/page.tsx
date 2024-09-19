@@ -1,15 +1,23 @@
 import { trpc } from "@/trpc/client";
 import { getAuthSession } from "@/lib/nextauth";
+import { commentPerPage } from "@/lib/utils";
 import PostDetail from "@/components/post/PostDetail";
 
 interface PostDetailPageProps {
   params: {
     postId: string;
   }
+  searchParams: {
+    [key: string]: string | undefined
+  }
 }
 
-const PostDetailPage = async ({ params }: PostDetailPageProps) => {
+const PostDetailPage = async ({ params, searchParams }: PostDetailPageProps) => {
   const { postId } = params;
+  const { page, perPage } = searchParams;
+
+  const limit = typeof perPage === 'string' ? parseInt(perPage) : commentPerPage;
+  const offset = typeof page === 'string' ? (parseInt(page) - 1) * limit : 0;
 
   const user = await getAuthSession();
   const post = await trpc.post.getPostById({ postId });
@@ -22,12 +30,16 @@ const PostDetailPage = async ({ params }: PostDetailPageProps) => {
     )
   }
 
-  const { comments } = await trpc.comment.getComments({
+  const { comments, totalComments } = await trpc.comment.getComments({
     userId: user?.id!,
-    postId
+    postId,
+    limit,
+    offset
   })
 
-  return <PostDetail post={post} userId={user?.id!} comments={comments} />
+  const pageCount = Math.ceil(totalComments / limit);
+
+  return <PostDetail post={post} userId={user?.id!} comments={comments} pageCount={pageCount} totalComments={totalComments} />
 
 }
 
