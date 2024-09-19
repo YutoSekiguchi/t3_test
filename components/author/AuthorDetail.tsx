@@ -1,16 +1,20 @@
 "use client";
 
 import { Post, User } from "@prisma/client";
+import { userPostPerPage } from "@/lib/utils";
 import Image from "next/image";
 import AuthorPostItem from "./AuthorPostItem";
+import PaginationButton from "@/components/pagers/PaginationButton";
 
 interface AuthorDetailProps {
   user: User & {
     posts: Post[];
   };
+  pageCount: number;
+  totalPosts: number;
 }
 
-const AuthorDetail = ({ user }: AuthorDetailProps) => {
+const AuthorDetail = ({ user, pageCount, totalPosts }: AuthorDetailProps) => {
   return (
     <div>
       <div className="flex justify-center mb-5">
@@ -28,9 +32,9 @@ const AuthorDetail = ({ user }: AuthorDetailProps) => {
         <div className="leading-relaxed">{user.introduction}</div>
       </div>
 
-      <div>
-        <div className="mb-5">
-          <div className="font-bold mb-1">投稿 {user.posts.length}</div>
+      <div className="space-y-5">
+        <div>
+          <div className="font-bold mb-1">投稿 {totalPosts}</div>
           <hr />
         </div>
 
@@ -44,6 +48,9 @@ const AuthorDetail = ({ user }: AuthorDetailProps) => {
               <AuthorPostItem key={post.id} post={post} />
             ))}
           </div>
+        )}
+        {user.posts.length !== 0 && (
+          <PaginationButton pageCount={pageCount} displayPerPage={userPostPerPage} />
         )}
       </div>
     </div>

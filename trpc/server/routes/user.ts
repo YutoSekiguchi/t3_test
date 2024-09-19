@@ -73,13 +73,15 @@ export const userRouter = router({
     getUserByIdPost: publicProcedure.input(
       z.object({
         userId: z.string().optional(),
+        limit: z.number(),
+        offset: z.number(),
       })
     ).query(async ({ input }) => {
         try {
-          const { userId } = input;
+          const { userId, limit, offset } = input;
 
           if (!userId) {
-            return null
+            return { user: null, totalPosts: 0 };
           }
 
           const user = await prisma.user.findUnique({
@@ -88,6 +90,8 @@ export const userRouter = router({
             },
             include: {
               posts: {
+                skip: offset,
+                take: limit,
                 orderBy: {
                   createdAt: "desc",
                 },
@@ -96,10 +100,16 @@ export const userRouter = router({
           });
 
           if(!user) {
-            return null
+            return { user: null, totalPosts: 0 };
           }
+
+          const totalPosts = await prisma.post.count({
+            where: {
+              userId,
+            },
+          });
           
-          return user
+          return { user, totalPosts };
         } catch (error) {
           console.log(error);
 
