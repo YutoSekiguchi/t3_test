@@ -18,6 +18,7 @@ import { trpc } from "@/trpc/react";
 import { Button } from "@/components/ui/button";
 import { Input } from "../ui/input";
 import { Textarea } from "../ui/textarea";
+import { Checkbox } from "../ui/checkbox";
 import { Post } from "@prisma/client";
 import { Loader2 } from "lucide-react";
 import ImageUploading, { ImageListType } from "react-images-uploading";
@@ -27,6 +28,7 @@ import toast from "react-hot-toast";
 const schema = z.object({
   title: z.string().min(3, { message: "3文字以上で入力してください" }),
   content: z.string().min(10, { message: "10文字以上で入力してください" }),
+  premium: z.boolean(),
 });
 
 type InputType = z.infer<typeof schema>;
@@ -48,6 +50,7 @@ const PostEdit = ({ post }: PostEditProps) => {
     defaultValues: {
       title: post.title || "",
       content: post.content || "",
+      premium: post.premium || false,
     },
   });
 
@@ -78,6 +81,7 @@ const PostEdit = ({ post }: PostEditProps) => {
       title: data.title,
       content: data.content,
       base64Image,
+      premium: data.premium,
     });
   };
 
@@ -163,6 +167,25 @@ const PostEdit = ({ post }: PostEditProps) => {
                 <FormControl>
                   <Textarea placeholder="本文" {...field} />
                 </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            name="premium"
+            control={form.control}
+            render={({ field }) => (
+              <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-5 shadow-sm">
+                <FormControl>
+                  <Checkbox checked={field.value} onCheckedChange={field.onChange} />
+                </FormControl>
+                <div className="space-y-2 leading-none">
+                  <FormLabel>有料会員限定</FormLabel>
+                  <FormDescription>
+                    有料会員のみが閲覧できるようにする
+                  </FormDescription>
+                </div>
                 <FormMessage />
               </FormItem>
             )}

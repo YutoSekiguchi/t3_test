@@ -12,11 +12,12 @@ export const postRouter = router({
         title: z.string(),
         content: z.string(),
         base64Image: z.string().optional(),
+        premium: z.boolean(),
       })
     )
     .mutation(async ({ input, ctx }) => {
       try {
-        const { title, content, base64Image } = input;
+        const { title, content, base64Image, premium } = input;
         const userId = ctx.user.id;
         let iamge_url;
 
@@ -30,6 +31,7 @@ export const postRouter = router({
             title,
             content,
             image: iamge_url,
+            premium
           },
         });
 
@@ -127,11 +129,12 @@ export const postRouter = router({
         title: z.string(),
         content: z.string(),
         base64Image: z.string().optional(),
+        premium: z.boolean(),
       })
     )
     .mutation(async ({ input, ctx }) => {
       try {
-        const { postId, title, content, base64Image } = input;
+        const { postId, title, content, base64Image, premium } = input;
         const userId = ctx.user.id;
         let image_url;
 
@@ -175,7 +178,8 @@ export const postRouter = router({
           data: {
             title,
             content,
-            ...(image_url && { image: image_url }),
+            premium,
+            ...(image_url && { image: image_url })
           },
         });
       } catch (error) {

@@ -1,6 +1,7 @@
 import { trpc } from "@/trpc/client";
 import { getAuthSession } from "@/lib/nextauth";
 import { commentPerPage } from "@/lib/utils";
+import { getSubscription } from "@/actions/subscription";
 import PostDetail from "@/components/post/PostDetail";
 
 interface PostDetailPageProps {
@@ -30,6 +31,10 @@ const PostDetailPage = async ({ params, searchParams }: PostDetailPageProps) => 
     )
   }
 
+  const { isSubscribed } = await getSubscription({
+    userId: user?.id,
+  });
+
   const { comments, totalComments } = await trpc.comment.getComments({
     userId: user?.id!,
     postId,
@@ -39,7 +44,7 @@ const PostDetailPage = async ({ params, searchParams }: PostDetailPageProps) => 
 
   const pageCount = Math.ceil(totalComments / limit);
 
-  return <PostDetail post={post} userId={user?.id!} comments={comments} pageCount={pageCount} totalComments={totalComments} />
+  return <PostDetail post={post} userId={user?.id!} comments={comments} pageCount={pageCount} totalComments={totalComments} isSubscribed={isSubscribed} />
 
 }
 

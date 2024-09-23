@@ -41,20 +41,24 @@ const UserNavigation = ({ user }: UserNavigationProps) => {
         </Link>
         <DropdownMenuSeparator />
 
-        <Link href="/post/new">
-          <DropdownMenuItem className="cursor-pointer">
-            新規投稿
-          </DropdownMenuItem>
-        </Link>
+        {
+          user.isAdmin && (
+          <Link href="/post/new">
+            <DropdownMenuItem className="cursor-pointer py-1">
+              新規投稿
+            </DropdownMenuItem>
+          </Link>
+          )
+        }
 
         <Link href="/settings/profile">
-          <DropdownMenuItem className="cursor-pointer">
+          <DropdownMenuItem className="cursor-pointer py-1">
             アカウント設定
           </DropdownMenuItem>
         </Link>
 
         <DropdownMenuItem
-          className="cursor-pointer text-red-600"
+          className="cursor-pointer text-red-600 py-1"
           onSelect={async (event) => {
             event.preventDefault();
             await signOut({ callbackUrl: "/" });

@@ -24,6 +24,13 @@ const PostItem = ({ post }: PostItemProps) => {
     <div>
       <div className="grid grid-cols-1 sm:grid-cols-3 sm:gap-3 space-y-3 sm:space-y-0">
         <Link href={`/post/${post.id}`} className="relative">
+          {
+            post.premium && (
+              <div className="absolute top-0 z-10 bg-gradient-radial from-blue-500 to-sky-500 rounded-md text-white font-semibold px-3 py-1 text-xs inline-block">
+                有料会員限定
+              </div>
+            )
+          }
           <div className="aspect-[16/9] relative col-span-3 sm:col-span-1 overflow-hidden rounded-md">
             <Image
               fill

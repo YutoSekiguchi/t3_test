@@ -12,9 +12,11 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
+  FormDescription,
 } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Checkbox } from "../ui/checkbox";
 import { Textarea } from "../ui/textarea";
 import { trpc } from "@/trpc/react";
 import { Loader2 } from "lucide-react";
@@ -25,6 +27,7 @@ import Image from "next/image";
 const schema = z.object({
   title: z.string().min(3, { message: "3文字以上で入力してください" }),
   content: z.string().min(10, { message: "10文字以上で入力してください" }),
+  premium: z.boolean(),
 });
 
 type InputType = z.infer<typeof schema>;
@@ -38,6 +41,7 @@ const PostNew = () => {
     defaultValues: {
       title: "",
       content: "",
+      premium: false,
     },
   });
 
@@ -65,6 +69,7 @@ const PostNew = () => {
       title: data.title,
       content: data.content,
       base64Image,
+      premium: data.premium,
     });
   };
 
@@ -168,6 +173,27 @@ const PostNew = () => {
                   <Textarea placeholder="投稿の内容" rows={15} {...field} />
                 </FormControl>
                 <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="premium"
+            render={({ field }) => (
+              <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-5 shadow-sm">
+                <FormControl>
+                  <Checkbox
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
+                </FormControl>
+                <div className="space-y-2 leading-none">
+                  <FormLabel>有料会員限定</FormLabel>
+                  <FormDescription>
+                    有料会員のみが閲覧できるようにする
+                  </FormDescription>
+                </div>
               </FormItem>
             )}
           />
